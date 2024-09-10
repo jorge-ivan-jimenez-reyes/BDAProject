@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require('express');  
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
-// Configurar Express
+// Crear instancia de express
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -17,7 +17,7 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Ruta para obtener datos de UptimeRobot y guardarlos en PostgreSQL
+// Definir la ruta para obtener datos de UptimeRobot y guardarlos en PostgreSQL
 app.get('/api/fetchAndSaveData', async (req, res) => {
   try {
     const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -45,10 +45,30 @@ app.get('/api/fetchAndSaveData', async (req, res) => {
       const response_time = 0;  // UptimeRobot no devuelve tiempo de respuesta en esta API
       const status_code = monitor.status === 2 ? 200 : 500;  // 2 es "Online", otro valor es error
 
-      // Insertar los datos en PostgreSQL
+      // 1. Insertar en network_traffic
       await pool.query(
         'INSERT INTO network_traffic (ip_address, request_url, response_time, status_code, bytes_sent, user_agent) VALUES ($1, $2, $3, $4, $5, $6)',
         [ip_address, request_url, response_time, status_code, 0, 'UptimeRobot API']
+      );
+
+      // 2. Insertar en event_logs
+      await pool.query(
+        'INSERT INTO event_logs (event_time, event_type, description, ip_address, related_url) VALUES ($1, $2, $3, $4, $5)',
+        [new Date(), 'API Call', 'Llamada a UptimeRobot realizada', ip_address, request_url]
+      );
+
+      // 3. Insertar en security_incidents si el status_code no es 200
+      if (status_code !== 200) {
+        await pool.query(
+          'INSERT INTO security_incidents (incident_time, ip_address, incident_type, description, severity, resolution_status) VALUES ($1, $2, $3, $4, $5, $6)',
+          [new Date(), ip_address, 'Offline', `El sitio ${request_url} está fuera de línea`, 'Alto', 'Detectado']
+        );
+      }
+
+      // 4. Insertar en uptime_monitor
+      await pool.query(
+        'INSERT INTO uptime_monitor (check_time, is_online, response_time, status_code, error_message) VALUES ($1, $2, $3, $4, $5)',
+        [new Date(), status_code === 200, response_time, status_code, status_code === 200 ? null : 'Página fuera de línea']
       );
 
       res.status(201).json({ message: 'Datos guardados correctamente en la base de datos' });
@@ -61,7 +81,27 @@ app.get('/api/fetchAndSaveData', async (req, res) => {
   }
 });
 
-// Puerto donde correrá el servidor
+// Endpoint para obtener datos del dashboard
+app.get('/api/getDashboardData', async (req, res) => {
+  try {
+    // Consultar datos de network_traffic
+    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
+    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
+    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
+
+    // Enviar la respuesta con los datos de las tablas
+    res.json({
+      networkTraffic: networkTrafficResult.rows,
+      eventLogs: eventLogsResult.rows,
+      uptimeMonitor: uptimeMonitorResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos del dashboard:', error);
+    res.status(500).json({ error: 'Error al obtener los datos del dashboard' });
+  }
+});
+
+// Definir el puerto donde correrá el servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
