@@ -1,7 +1,8 @@
-const express = require('express');  
+const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
+const WebSocket = require('ws');
 
 // Crear instancia de express
 const app = express();
@@ -17,10 +18,71 @@ const pool = new Pool({
   port: 5432,
 });
 
+// Configurar WebSocket Server
+const wss = new WebSocket.Server({ port: 8080 });
+
+// Cuando un cliente se conecta al WebSocket
+wss.on('connection', (ws) => {
+  console.log('Cliente conectado');
+
+  // Enviar datos del dashboard al cliente conectado
+  sendDataToClient(ws);
+
+  // Manejar mensajes entrantes desde el cliente (opcional)
+  ws.on('message', (message) => {
+    console.log(`Mensaje recibido: ${message}`);
+  });
+
+  // Cuando el cliente se desconecta
+  ws.on('close', () => {
+    console.log('Cliente desconectado');
+  });
+});
+
+// Función para obtener y enviar datos desde la base de datos al cliente
+const sendDataToClient = async (ws) => {
+  try {
+    // Consultar datos desde la base de datos
+    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
+    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
+    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
+
+    // Empaquetar los datos en un objeto
+    const data = {
+      networkTraffic: networkTrafficResult.rows,
+      eventLogs: eventLogsResult.rows,
+      uptimeMonitor: uptimeMonitorResult.rows,
+    };
+
+    // Enviar los datos al cliente a través de WebSocket
+    ws.send(JSON.stringify(data));
+  } catch (error) {
+    console.error('Error al obtener los datos desde la base de datos:', error);
+  }
+};
+
+// **NUEVA RUTA: GET para obtener los datos del dashboard desde la base de datos**
+app.get('/api/getDashboardData', async (req, res) => {
+  try {
+    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
+    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
+    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
+
+    res.json({
+      networkTraffic: networkTrafficResult.rows,
+      eventLogs: eventLogsResult.rows,
+      uptimeMonitor: uptimeMonitorResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos del dashboard:', error);
+    res.status(500).json({ error: 'Error al obtener los datos del dashboard' });
+  }
+});
+
 // Definir la ruta para obtener datos de UptimeRobot y guardarlos en PostgreSQL
 app.get('/api/fetchAndSaveData', async (req, res) => {
   try {
-    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+    const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
     // Llamada a la API de UptimeRobot
     const response = await fetch('https://api.uptimerobot.com/v2/getMonitors', {
@@ -71,7 +133,15 @@ app.get('/api/fetchAndSaveData', async (req, res) => {
         [new Date(), status_code === 200, response_time, status_code, status_code === 200 ? null : 'Página fuera de línea']
       );
 
+      // Enviar respuesta HTTP
       res.status(201).json({ message: 'Datos guardados correctamente en la base de datos' });
+
+      // Enviar datos actualizados a todos los clientes conectados mediante WebSocket
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          sendDataToClient(client);  // Envía los datos más recientes de la DB
+        }
+      });
     } else {
       res.status(400).json({ error: 'No se encontraron monitores en la respuesta' });
     }
@@ -81,28 +151,8 @@ app.get('/api/fetchAndSaveData', async (req, res) => {
   }
 });
 
-// Endpoint para obtener datos del dashboard
-app.get('/api/getDashboardData', async (req, res) => {
-  try {
-    // Consultar datos de network_traffic
-    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
-    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
-    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
-
-    // Enviar la respuesta con los datos de las tablas
-    res.json({
-      networkTraffic: networkTrafficResult.rows,
-      eventLogs: eventLogsResult.rows,
-      uptimeMonitor: uptimeMonitorResult.rows,
-    });
-  } catch (error) {
-    console.error('Error al obtener los datos del dashboard:', error);
-    res.status(500).json({ error: 'Error al obtener los datos del dashboard' });
-  }
-});
-
-// Definir el puerto donde correrá el servidor
+// Definir el puerto donde correrá el servidor HTTP
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor HTTP corriendo en el puerto ${PORT}`);
 });
