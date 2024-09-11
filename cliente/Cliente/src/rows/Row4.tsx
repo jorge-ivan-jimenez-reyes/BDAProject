@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { motion } from 'framer-motion';
 
 // Definimos el tipo para cada incidente de seguridad
 interface SecurityIncident {
@@ -27,7 +28,7 @@ const Row4 = () => {
     fetchData();
   }, []);
 
-  const colors = ['#FF8042', '#0088FE', '#00C49F', '#FFBB28'];
+  const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
 
   // Preparar los datos para el gráfico de Pie con tipos explícitos
   const severityCount: Record<string, number> = securityIncidents.reduce((acc: Record<string, number>, incident) => {
@@ -42,9 +43,14 @@ const Row4 = () => {
   }));
 
   return (
-    <div className="p-6 bg-gray-800 rounded-md">
-      <h2 className="text-xl text-white">Security Incidents by Severity</h2>
-      <ResponsiveContainer width="100%" height={300}>
+    <motion.div
+      className="p-6 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-md shadow-lg"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+    >
+      <h2 className="text-2xl font-bold text-white mb-4 text-center">Security Incidents by Severity</h2>
+      <ResponsiveContainer width="100%" height={350}>
         <PieChart>
           <Pie
             data={chartData}
@@ -52,17 +58,22 @@ const Row4 = () => {
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={100}
+            outerRadius={120}
+            innerRadius={60}
             fill="#8884d8"
+            paddingAngle={5}
+            label={(entry) => `${entry.name} (${entry.value})`}
+            isAnimationActive={true}
           >
             {chartData.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip contentStyle={{ backgroundColor: '#333', color: '#fff' }} />
+          <Legend layout="vertical" align="right" verticalAlign="middle" />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   );
 };
 

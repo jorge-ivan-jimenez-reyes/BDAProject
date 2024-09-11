@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="bg-gradient-to-b from-gray-900 to-black h-screen text-white flex flex-col shadow-lg w-64">
+    <div className="bg-gradient-to-b from-gray-900 to-black min-h-screen text-white flex flex-col w-64 shadow-lg">
       {/* Logo */}
       <div className="text-center py-5">
         <h1 className="text-3xl font-bold tracking-widest text-cyan-400">CYBER DASH</h1>

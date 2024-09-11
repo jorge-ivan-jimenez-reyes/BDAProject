@@ -1,13 +1,26 @@
+import Row5 from '../rows/Row5';
+import Row6 from '../rows/Row6';
+import Row7 from '../rows/Row7';
+import Row8 from '../rows/Row8';
+import { Box } from '@mui/material';
+
 
 const Security = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-4xl font-bold text-cyan-400">Security Incidents</h1>
-      <p className="mt-4 text-gray-300">
-        Track security incidents, alerts, and log critical events in your network.
-      </p>
-      {/* Inserta aquí las gráficas y datos relacionados a Security Incidents */}
-    </div>
+    <Box
+      width="100%"
+      height="100%"
+      display="flex"
+      flexDirection="column"
+      gap="1.5rem"
+      p={4}
+      className="bg-gradient-to-r from-gray-900 to-gray-800"
+    >
+        <Row5 /> {/* Security Summary */}
+      <Row6 /> {/* Incidents Over Time */}
+      <Row7 /> {/* Incidents by Type */}
+      <Row8 /> {/* Critical Incidents */}
+    </Box>
   );
 };
 
