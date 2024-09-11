@@ -23,22 +23,22 @@ const Dashboard: React.FC = () => {
         }}
       >
         {/* Row1 */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Row1 />
         </Grid>
 
         {/* Row2 */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Row2 />
         </Grid>
 
         {/* Row3 */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <Row3 />
         </Grid>
 
         {/* Row4 */}
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={6}>
           <Row4 />
         </Grid>
       </Grid>
