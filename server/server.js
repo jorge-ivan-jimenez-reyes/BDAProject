@@ -170,6 +170,8 @@ app.get('/api/threatIntelligence', async (req, res) => {
   }
 });
 
+
+
 // Definir el puerto donde correrá el servidor HTTP
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

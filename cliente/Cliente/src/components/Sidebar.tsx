@@ -6,7 +6,7 @@ const Sidebar = () => {
     <div className="bg-gradient-to-b from-gray-900 to-black min-h-screen text-white flex flex-col w-64 shadow-lg">
       {/* Logo */}
       <div className="text-center py-5">
-        <h1 className="text-3xl font-bold tracking-widest text-cyan-400">CYBER DASH</h1>
+        <h1 className="text-3xl font-bold tracking-widest text-cyan-400">Panel de Monitoreo</h1>
       </div>
 
       {/* Links */}
@@ -26,6 +26,10 @@ const Sidebar = () => {
         <Link to="/security" className="sidebar-link flex items-center px-6 py-3 hover:bg-gray-700 transition">
           <FaUserShield className="mr-3" />
           Security Incidents
+        </Link>
+        <Link to="/RealTimeMonitoring" className="sidebar-link flex items-center px-6 py-3 hover:bg-gray-700 transition">
+          <FaUserShield className="mr-3" />
+          Real Time Monitoring
         </Link>
       </nav>
 

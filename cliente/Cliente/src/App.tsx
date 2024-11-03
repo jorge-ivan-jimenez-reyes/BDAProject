@@ -4,6 +4,7 @@ import Network from "./pages/Network";
 import Servers from "./pages/Servers";
 import Security from "./pages/Security";
 import Sidebar from "./components/Sidebar";
+import RealTimeMonitor from "./pages/RealTimeMonitoring";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/network" element={<Network />} />
             <Route path="/servers" element={<Servers />} />
             <Route path="/security" element={<Security />} />
+            <Route path="/RealTimeMonitoring" element={<RealTimeMonitor />} />
           </Routes>
         </div>
       </Router>
