@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'monitoring_db',  // Nombre de la base de datos que creaste
+  database: 'monitoring_db',
   password: '12345',
   port: 5432,
 });
@@ -24,8 +24,6 @@ const wss = new WebSocket.Server({ port: 8080 });
 // Cuando un cliente se conecta al WebSocket
 wss.on('connection', (ws) => {
   console.log('Cliente conectado');
-
-  // Enviar datos del dashboard al cliente conectado
   sendDataToClient(ws);
 
   // Manejar mensajes entrantes desde el cliente (opcional)
@@ -42,112 +40,133 @@ wss.on('connection', (ws) => {
 // Función para obtener y enviar datos desde la base de datos al cliente
 const sendDataToClient = async (ws) => {
   try {
-    // Consultar datos desde la base de datos
-    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
-    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
-    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
+    const serverMetricsResult = await pool.query('SELECT * FROM server_metrics ORDER BY timestamp DESC LIMIT 100');
+    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor ORDER BY check_time DESC LIMIT 1');
+    const eventLogsResult = await pool.query("SELECT event_time, event_type, EXTRACT(HOUR FROM event_time) AS hour FROM event_logs ORDER BY event_time DESC LIMIT 100");
+    const securityIncidentsResult = await pool.query("SELECT incident_type, severity, COUNT(*) AS count FROM security_incidents GROUP BY incident_type, severity");
+    const incidentResolutionLogsResult = await pool.query("SELECT resolution_status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY resolution_status");
+    const anomalyDetectionLogsResult = await pool.query('SELECT * FROM anomaly_detection_logs ORDER BY detection_time DESC LIMIT 100');
+    const predictedIncidentsResult = await pool.query('SELECT incident_type, likelihood, impact_estimate FROM predicted_incidents ORDER BY predicted_time DESC LIMIT 100');
+    const historicalDataResult = await pool.query('SELECT * FROM historical_data_archive ORDER BY timestamp DESC LIMIT 100');
+    const ipLocationResult = await pool.query('SELECT e.ip_address, l.country, l.latitude, l.longitude FROM event_logs e JOIN ip_to_location l ON e.ip_address = l.ip_address LIMIT 100');
+    const userActivityResult = await pool.query('SELECT action_type, COUNT(*) AS count FROM user_activity GROUP BY action_type');
+    const threatIntelligenceResult = await pool.query('SELECT threat_type, severity FROM threat_intelligence');
+    const alertConfigurationsResult = await pool.query('SELECT * FROM alert_configurations');
 
-    // Empaquetar los datos en un objeto
     const data = {
-      networkTraffic: networkTrafficResult.rows,
+      serverMetrics: serverMetricsResult.rows,
+      uptimeMonitor: uptimeMonitorResult.rows[0],
       eventLogs: eventLogsResult.rows,
-      uptimeMonitor: uptimeMonitorResult.rows,
+      securityIncidents: securityIncidentsResult.rows,
+      incidentResolutionLogs: incidentResolutionLogsResult.rows,
+      anomalyDetectionLogs: anomalyDetectionLogsResult.rows,
+      predictedIncidents: predictedIncidentsResult.rows,
+      historicalData: historicalDataResult.rows,
+      ipLocation: ipLocationResult.rows,
+      userActivity: userActivityResult.rows,
+      threatIntelligence: threatIntelligenceResult.rows,
+      alertConfigurations: alertConfigurationsResult.rows,
     };
 
-    // Enviar los datos al cliente a través de WebSocket
     ws.send(JSON.stringify(data));
   } catch (error) {
     console.error('Error al obtener los datos desde la base de datos:', error);
   }
 };
 
-// **NUEVA RUTA: GET para obtener los datos del dashboard desde la base de datos**
-app.get('/api/getDashboardData', async (req, res) => {
+// Ruta para obtener los datos de Real-Time Monitoring y Performance Overview
+app.get('/api/realTimeMonitoring', async (req, res) => {
   try {
-    const networkTrafficResult = await pool.query('SELECT * FROM network_traffic');
-    const eventLogsResult = await pool.query('SELECT * FROM event_logs');
-    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor');
+    const serverMetricsResult = await pool.query('SELECT * FROM server_metrics ORDER BY timestamp DESC LIMIT 100');
+    const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor ORDER BY check_time DESC LIMIT 1');
+    const eventLogsResult = await pool.query("SELECT event_time, event_type, EXTRACT(HOUR FROM event_time) AS hour FROM event_logs ORDER BY event_time DESC LIMIT 100");
 
     res.json({
-      networkTraffic: networkTrafficResult.rows,
+      serverMetrics: serverMetricsResult.rows,
+      uptimeMonitor: uptimeMonitorResult.rows[0],
       eventLogs: eventLogsResult.rows,
-      uptimeMonitor: uptimeMonitorResult.rows,
     });
   } catch (error) {
-    console.error('Error al obtener los datos del dashboard:', error);
-    res.status(500).json({ error: 'Error al obtener los datos del dashboard' });
+    console.error('Error al obtener los datos de Real-Time Monitoring:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Real-Time Monitoring' });
   }
 });
 
-// Definir la ruta para obtener datos de UptimeRobot y guardarlos en PostgreSQL
-app.get('/api/fetchAndSaveData', async (req, res) => {
+// Ruta para Security Incident Analysis
+app.get('/api/securityIncidentAnalysis', async (req, res) => {
   try {
-    const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+    const securityIncidentsResult = await pool.query("SELECT incident_type, severity, COUNT(*) AS count FROM security_incidents GROUP BY incident_type, severity");
+    const incidentResolutionLogsResult = await pool.query("SELECT resolution_status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY resolution_status");
+    const anomalyDetectionLogsResult = await pool.query('SELECT * FROM anomaly_detection_logs ORDER BY detection_time DESC LIMIT 100');
 
-    // Llamada a la API de UptimeRobot
-    const response = await fetch('https://api.uptimerobot.com/v2/getMonitors', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        api_key: 'm797654455-f0ab451f0cd8f2c93be813a7', // Tu API Key de UptimeRobot
-        format: 'json',
-      }),
+    res.json({
+      securityIncidents: securityIncidentsResult.rows,
+      incidentResolutionLogs: incidentResolutionLogsResult.rows,
+      anomalyDetectionLogs: anomalyDetectionLogsResult.rows,
     });
-
-    const data = await response.json();
-
-    if (data.monitors && data.monitors.length > 0) {
-      const monitor = data.monitors[0];  // Tomar el primer monitor de la lista
-
-      // Configurar los datos para insertar en PostgreSQL
-      const ip_address = 'IP_DE_EJEMPLO';  // Puedes cambiar este valor si es necesario
-      const request_url = monitor.url;
-      const response_time = 0;  // UptimeRobot no devuelve tiempo de respuesta en esta API
-      const status_code = monitor.status === 2 ? 200 : 500;  // 2 es "Online", otro valor es error
-
-      // 1. Insertar en network_traffic
-      await pool.query(
-        'INSERT INTO network_traffic (ip_address, request_url, response_time, status_code, bytes_sent, user_agent) VALUES ($1, $2, $3, $4, $5, $6)',
-        [ip_address, request_url, response_time, status_code, 0, 'UptimeRobot API']
-      );
-
-      // 2. Insertar en event_logs
-      await pool.query(
-        'INSERT INTO event_logs (event_time, event_type, description, ip_address, related_url) VALUES ($1, $2, $3, $4, $5)',
-        [new Date(), 'API Call', 'Llamada a UptimeRobot realizada', ip_address, request_url]
-      );
-
-      // 3. Insertar en security_incidents si el status_code no es 200
-      if (status_code !== 200) {
-        await pool.query(
-          'INSERT INTO security_incidents (incident_time, ip_address, incident_type, description, severity, resolution_status) VALUES ($1, $2, $3, $4, $5, $6)',
-          [new Date(), ip_address, 'Offline', `El sitio ${request_url} está fuera de línea`, 'Alto', 'Detectado']
-        );
-      }
-
-      // 4. Insertar en uptime_monitor
-      await pool.query(
-        'INSERT INTO uptime_monitor (check_time, is_online, response_time, status_code, error_message) VALUES ($1, $2, $3, $4, $5)',
-        [new Date(), status_code === 200, response_time, status_code, status_code === 200 ? null : 'Página fuera de línea']
-      );
-
-      // Enviar respuesta HTTP
-      res.status(201).json({ message: 'Datos guardados correctamente en la base de datos' });
-
-      // Enviar datos actualizados a todos los clientes conectados mediante WebSocket
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          sendDataToClient(client);  // Envía los datos más recientes de la DB
-        }
-      });
-    } else {
-      res.status(400).json({ error: 'No se encontraron monitores en la respuesta' });
-    }
   } catch (error) {
-    console.error('Error al obtener o guardar los datos:', error);
-    res.status(500).json({ error: 'Error al obtener o guardar los datos' });
+    console.error('Error al obtener los datos de Security Incident Analysis:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Security Incident Analysis' });
+  }
+});
+
+// Ruta para Predictive Analysis and Forecasts
+app.get('/api/predictiveAnalysis', async (req, res) => {
+  try {
+    const predictedIncidentsResult = await pool.query('SELECT incident_type, likelihood, impact_estimate FROM predicted_incidents ORDER BY predicted_time DESC LIMIT 100');
+    const historicalDataResult = await pool.query('SELECT * FROM historical_data_archive ORDER BY timestamp DESC LIMIT 100');
+
+    res.json({
+      predictedIncidents: predictedIncidentsResult.rows,
+      historicalData: historicalDataResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos de Predictive Analysis:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Predictive Analysis' });
+  }
+});
+
+// Ruta para Geographical Visualization
+app.get('/api/geographicalVisualization', async (req, res) => {
+  try {
+    const ipLocationResult = await pool.query('SELECT e.ip_address, l.country, l.latitude, l.longitude FROM event_logs e JOIN ip_to_location l ON e.ip_address = l.ip_address LIMIT 100');
+
+    res.json({
+      ipLocation: ipLocationResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos de Geographical Visualization:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Geographical Visualization' });
+  }
+});
+
+// Ruta para User Activity and Behavior Insights
+app.get('/api/userActivityInsights', async (req, res) => {
+  try {
+    const userActivityResult = await pool.query('SELECT action_type, COUNT(*) AS count FROM user_activity GROUP BY action_type');
+
+    res.json({
+      userActivity: userActivityResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos de User Activity Insights:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de User Activity Insights' });
+  }
+});
+
+// Ruta para Threat Intelligence and Alerts
+app.get('/api/threatIntelligence', async (req, res) => {
+  try {
+    const threatIntelligenceResult = await pool.query('SELECT threat_type, severity FROM threat_intelligence');
+    const alertConfigurationsResult = await pool.query('SELECT * FROM alert_configurations');
+
+    res.json({
+      threatIntelligence: threatIntelligenceResult.rows,
+      alertConfigurations: alertConfigurationsResult.rows,
+    });
+  } catch (error) {
+    console.error('Error al obtener los datos de Threat Intelligence:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Threat Intelligence' });
   }
 });
 
