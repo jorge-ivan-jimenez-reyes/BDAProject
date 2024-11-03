@@ -2,28 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom global styles */
-body {
-  @apply bg-gray-50 text-gray-900;
-}
-
 /* Custom styles for the heatmap colors */
 .color-empty {
-  background-color: #e0e0e0; /* No data */
+  fill: #e0e0e0; /* Sin datos */
 }
 
 .color-scale-1 {
-  background-color: #a3e635; /* Low activity */
+  fill: #d6e685; /* Bajo */
 }
 
 .color-scale-2 {
-  background-color: #65a30d; /* Medium activity */
+  fill: #8cc665; /* Medio */
 }
 
 .color-scale-3 {
-  background-color: #4d7c0f; /* High activity */
+  fill: #44a340; /* Alto */
 }
 
 .color-scale-4 {
-  background-color: #166534; /* Very high activity */
+  fill: #1e6823; /* Muy alto */
 }

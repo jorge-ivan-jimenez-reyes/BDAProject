@@ -91,6 +91,28 @@ app.get('/api/realTimeMonitoring', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los datos de Real-Time Monitoring' });
   }
 });
+app.get('/api/eventFrequency', async (req, res) => {
+  try {
+    const eventFrequencyResult = await pool.query(`
+      SELECT 
+        DATE(event_time) AS event_date,
+        COUNT(*) AS event_count
+      FROM 
+        event_logs 
+      WHERE 
+        event_time >= NOW() - INTERVAL '30 days' 
+      GROUP BY 
+        event_date 
+      ORDER BY 
+        event_date;
+    `);
+
+    res.json(eventFrequencyResult.rows);
+  } catch (error) {
+    console.error('Error al obtener la frecuencia de eventos:', error);
+    res.status(500).json({ error: 'Error al obtener la frecuencia de eventos' });
+  }
+});
 
 // Ruta para Security Incident Analysis
 app.get('/api/securityIncidentAnalysis', async (req, res) => {

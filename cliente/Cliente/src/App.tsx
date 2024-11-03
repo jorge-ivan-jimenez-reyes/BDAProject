@@ -5,6 +5,7 @@ import Servers from "./pages/Servers";
 import Security from "./pages/Security";
 import Sidebar from "./components/Sidebar";
 import RealTimeMonitor from "./pages/RealTimeMonitoring";
+import "./index.css"; // Asegúrate de tener Tailwind CSS configurado aquí.
 
 function App() {
   return (
