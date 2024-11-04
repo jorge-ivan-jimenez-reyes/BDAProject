@@ -24,14 +24,14 @@ interface AnomalyDetectionLog {
   resolved: boolean;
 }
 
-interface SecurityData {
+interface APIResponse {
   securityIncidents: SecurityIncident[];
   incidentResolutionLogs: IncidentResolutionLog[];
   anomalyDetectionLogs: AnomalyDetectionLog[];
 }
 
 const Security: React.FC = () => {
-  const [data, setData] = useState<SecurityData>({
+  const [data, setData] = useState<APIResponse>({
     securityIncidents: [],
     incidentResolutionLogs: [],
     anomalyDetectionLogs: [],
@@ -40,13 +40,17 @@ const Security: React.FC = () => {
   const mapSeverityToNumber = (severity: string): number => {
     switch (severity.toLowerCase()) {
       case 'high':
+      case 'crítico':
+      case 'critical':
         return 3;
       case 'medium':
+      case 'medio':
         return 2;
       case 'low':
+      case 'bajo':
         return 1;
       default:
-        return 0; // For unexpected or unhandled severity levels
+        return 0;
     }
   };
 
@@ -57,22 +61,24 @@ const Security: React.FC = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const result = await response.json();
-    
-        // Convert string counts to numbers and map severity
-        const securityIncidents = result.securityIncidents.map((incident: SecurityIncident) => ({
+        const result: APIResponse = await response.json();
+
+        // Convert string counts to numbers
+        const securityIncidents = result.securityIncidents.map((incident) => ({
           ...incident,
           count: parseInt(incident.count.toString(), 10),
         }));
-        const incidentResolutionLogs = result.incidentResolutionLogs.map((log: IncidentResolutionLog) => ({
+
+        const incidentResolutionLogs = result.incidentResolutionLogs.map((log) => ({
           ...log,
           count: parseInt(log.count.toString(), 10),
         }));
-        const anomalyDetectionLogs = result.anomalyDetectionLogs.map((log: Omit<AnomalyDetectionLog, 'severity'> & { severity: string }) => ({
+
+        const anomalyDetectionLogs = result.anomalyDetectionLogs.map((log) => ({
           ...log,
-          severity: mapSeverityToNumber(log.severity).toString(), // Convert numeric value to string if needed
+          severity: mapSeverityToNumber(log.severity.toString()),
         }));
-    
+
         setData({
           securityIncidents,
           incidentResolutionLogs,
@@ -88,7 +94,6 @@ const Security: React.FC = () => {
 
   return (
     <div className="p-4">
-     
       {data.securityIncidents.length > 0 && (
         <SecurityIncidentsChart data={data.securityIncidents} />
       )}

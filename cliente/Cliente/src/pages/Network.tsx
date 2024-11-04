@@ -79,7 +79,7 @@ const Network: React.FC = () => {
           <HeatmapOverlay data={heatmapData} />
         </div>
         <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold text-white mb-4">Top Países con más Incidentes</h2>
+          <h2 className="text-2xl font-semibold text-white mb-4">Top Países con más Ataques</h2>
           <ul className="space-y-2">
             {topCountries.map((country, index) => (
               <li key={index} className="flex justify-between text-white">

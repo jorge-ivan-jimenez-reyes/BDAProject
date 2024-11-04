@@ -126,6 +126,36 @@ app.get('/api/eventFrequency', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener la frecuencia de eventos' });
   }
 });
+// Ruta para obtener estadísticas de actividad de usuario
+app.get('/api/userSessionStats', async (req, res) => {
+  try {
+    const userSessionStatsResult = await pool.query(`
+      SELECT
+          user_id,
+          COUNT(activity_id) AS total_interactions,
+          MAX(session_duration) AS max_session_duration,
+          MIN(session_duration) AS min_session_duration,
+          AVG(session_duration) AS avg_session_duration
+      FROM (
+          SELECT
+              user_id,
+              activity_id,
+              EXTRACT(EPOCH FROM (LEAD(login_time) OVER (PARTITION BY user_id ORDER BY login_time) - login_time)) AS session_duration
+          FROM
+              user_activity
+      ) AS sessions
+      WHERE
+          session_duration IS NOT NULL
+      GROUP BY
+          user_id;
+    `);
+
+    res.json(userSessionStatsResult.rows);
+  } catch (error) {
+    console.error('Error al obtener estadísticas de sesiones de usuario:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas de sesiones de usuario' });
+  }
+});
 
 // Ruta para Security Incident Analysis
 app.get('/api/securityIncidentAnalysis', async (req, res) => {
