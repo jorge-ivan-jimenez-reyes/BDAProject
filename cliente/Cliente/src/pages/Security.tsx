@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SecurityIncidentsChart from '../components/SecurityIncidentsChart';
 import IncidentResolutionPieChart from '../components/IncidentResolutionPieChart';
 import AnomalyTimelineChart from '../components/AnomalyTimelineChart';
-import RadarChart from '../components/RadarChart'; // Importa el RadarChart
+import RadarChart from '../components/RadarChart';
 
 interface SecurityIncident {
   incident_type: string;
@@ -21,7 +21,7 @@ interface AnomalyDetectionLog {
   anomaly_type: string;
   description: string;
   related_metric: string;
-  severity: number; // Asegúrate de que la severidad sea numérica para la compatibilidad del gráfico
+  severity: number;
   resolved: boolean;
 }
 
@@ -64,7 +64,6 @@ const Security: React.FC = () => {
         }
         const result: APIResponse = await response.json();
 
-        // Convertir conteos de incidentes a números
         const securityIncidents = result.securityIncidents.map((incident) => ({
           ...incident,
           count: parseInt(incident.count.toString(), 10),
@@ -94,20 +93,33 @@ const Security: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4">
-      {data.securityIncidents.length > 0 && (
-        <SecurityIncidentsChart data={data.securityIncidents} />
-      )}
-      {data.incidentResolutionLogs.length > 0 && (
-        <IncidentResolutionPieChart data={data.incidentResolutionLogs} />
-      )}
+    <div className="p-8 bg-cyber-dark min-h-screen space-y-8">
+      <h1 className="text-4xl font-bold text-center text-neon-green mb-8">
+        Análisis de Incidentes de Seguridad
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {data.securityIncidents.length > 0 && (
+          <div className="p-4 bg-dark-blue shadow-[0_0_20px_rgba(255,0,122,0.5)] rounded-lg">
+            <SecurityIncidentsChart data={data.securityIncidents} />
+          </div>
+        )}
+        {data.incidentResolutionLogs.length > 0 && (
+          <div className="p-4 bg-dark-blue shadow-[0_0_20px_rgba(143,0,255,0.5)] rounded-lg">
+            <IncidentResolutionPieChart data={data.incidentResolutionLogs} />
+          </div>
+        )}
+      </div>
+
       {data.anomalyDetectionLogs.length > 0 && (
-        <AnomalyTimelineChart data={data.anomalyDetectionLogs} />
+        <div className="p-4 bg-dark-blue shadow-[0_0_20px_rgba(0,229,255,0.5)] rounded-lg">
+          <AnomalyTimelineChart data={data.anomalyDetectionLogs} />
+        </div>
       )}
-      {/* Agregar el RadarChart aquí */}
-      {data.securityIncidents.length > 0 && (
+
+      <div className="p-4 bg-dark-blue shadow-[0_0_20px_rgba(0,255,159,0.5)] rounded-lg">
         <RadarChart />
-      )}
+      </div>
     </div>
   );
 };

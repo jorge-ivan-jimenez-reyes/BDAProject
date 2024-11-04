@@ -1,3 +1,4 @@
+// HeatmapOverlay.tsx
 import React from 'react';
 import ReactMapGL, { Source, Layer } from 'react-map-gl';
 
@@ -12,12 +13,10 @@ interface Props {
 }
 
 const HeatmapOverlay: React.FC<Props> = ({ data }) => {
-  // Validar si los datos están correctamente formateados
   if (!Array.isArray(data) || data.length === 0) {
     return null; // No renderiza si no hay datos válidos
   }
 
-  // Formatear los datos en GeoJSON
   const heatmapDataGeoJSON = {
     type: 'FeatureCollection',
     features: data.map(({ latitude, longitude, weight }) => ({
@@ -30,7 +29,6 @@ const HeatmapOverlay: React.FC<Props> = ({ data }) => {
     })),
   };
 
-  // Validar si el objeto GeoJSON tiene características válidas
   if (!heatmapDataGeoJSON.features || heatmapDataGeoJSON.features.length === 0) {
     return null;
   }
@@ -43,8 +41,8 @@ const HeatmapOverlay: React.FC<Props> = ({ data }) => {
         zoom: 2,
       }}
       style={{ width: '100%', height: '600px' }}
-      mapStyle="mapbox://styles/mapbox/streets-v11"
-      mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN} // Asegúrate de configurar tu token correctamente
+      mapStyle="mapbox://styles/mapbox/dark-v10"
+      mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
     >
       <Source id="heatmap" type="geojson" data={heatmapDataGeoJSON}>
         <Layer
@@ -59,12 +57,12 @@ const HeatmapOverlay: React.FC<Props> = ({ data }) => {
               'interpolate',
               ['linear'],
               ['heatmap-density'],
-              0, 'rgba(0, 0, 0, 0)',
-              0.2, 'rgb(255, 255, 0)',
-              0.4, 'rgb(255, 0, 0)',
-              0.6, 'rgb(0, 0, 255)',
-              0.8, 'rgb(0, 255, 255)',
-              1, 'rgb(0, 0, 0)',
+              0, 'rgba(0, 0, 0, 0)',            // Transparent at zero density
+              0.2, '#00FF9F',                   // neon-green for low density
+              0.4, '#8F00FF',                   // neon-purple for moderate density
+              0.6, '#00E5FF',                   // bright-cyan for high density
+              0.8, '#FF007A',                   // neon-pink for very high density
+              1, '#0A0F29',                     // cyber-dark for max density
             ],
           }}
         />

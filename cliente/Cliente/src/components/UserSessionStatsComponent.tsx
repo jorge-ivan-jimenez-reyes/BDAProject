@@ -41,7 +41,6 @@ const UserSessionStatsComponent: React.FC = () => {
     );
   }
 
-  // Prepare data for charts
   const barChartData = sessionStats.map((stat) => ({
     user_id: `User ${stat.user_id}`,
     total_interactions: stat.total_interactions,
@@ -54,24 +53,24 @@ const UserSessionStatsComponent: React.FC = () => {
 
   return (
     <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#3f51b5', textAlign: 'center', fontWeight: 'bold', marginBottom: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold', marginBottom: 3 }}>
         Estadísticas de Sesiones de Usuario
       </Typography>
 
       <Grid container spacing={4}>
         <Grid item xs={12} md={3}>
-          <Paper elevation={6} sx={{ padding: 1, borderRadius: 3, backgroundColor: '#f3f6f9', height: '100%' }}>
-            <Typography variant="h6" sx={{ color: '#1e88e5', textAlign: 'center', fontWeight: 'bold', marginBottom: 1 }}>
+          <Paper elevation={6} sx={{ padding: 1, borderRadius: 3, backgroundColor: '#1B263B', color: '#B3B3B3', height: '100%' }}>
+            <Typography variant="h6" sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold', marginBottom: 1 }}>
               Resumen de Sesiones
             </Typography>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#1e88e5', padding: '4px' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#1e88e5', padding: '4px' }}>Interacciones</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#1e88e5', padding: '4px' }}>Dur. Máx (s)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#1e88e5', padding: '4px' }}>Dur. Mín (s)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#1e88e5', padding: '4px' }}>Dur. Prom (s)</TableCell>
+                <TableRow sx={{ backgroundColor: '#0A0F29' }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Interacciones</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Máx (s)</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Mín (s)</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Prom (s)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -103,34 +102,31 @@ const UserSessionStatsComponent: React.FC = () => {
                 sx={{
                   padding: 3,
                   borderRadius: 5,
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
-                  transition: '0.3s',
-                  '&:hover': {
-                    boxShadow: '0px 12px 40px rgba(0,0,0,0.2)',
-                  },
+                  backgroundColor: '#0A0F29',
+                  boxShadow: '0px 10px 30px rgba(0,255,159,0.2)',
+                  '&:hover': { boxShadow: '0px 12px 40px rgba(0,255,159,0.4)' },
                 }}
               >
-                <Typography variant="h5" gutterBottom sx={{ color: '#0d47a1', textAlign: 'center', fontWeight: 'bold' }}>
+                <Typography variant="h5" gutterBottom sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold' }}>
                   Total de Interacciones por Usuario
                 </Typography>
                 <ResponsiveContainer width="100%" height={450}>
                   <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorInteractions" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#42a5f5" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#42a5f5" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#8F00FF" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#8F00FF" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#dce3ea" />
-                    <XAxis dataKey="user_id" tick={{ fill: '#616161' }} />
-                    <YAxis tick={{ fill: '#616161' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
+                    <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} />
+                    <YAxis tick={{ fill: '#B3B3B3' }} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#f0f4f8', borderColor: '#42a5f5', borderRadius: 10 }}
-                      labelStyle={{ color: '#0d47a1' }}
-                      itemStyle={{ color: '#424242' }}
+                      contentStyle={{ backgroundColor: '#0A0F29', borderColor: '#00FF9F', borderRadius: 10 }}
+                      labelStyle={{ color: '#00FF9F' }}
+                      itemStyle={{ color: '#B3B3B3' }}
                     />
-                    <Legend wrapperStyle={{ color: '#0d47a1', fontWeight: 'bold' }} />
+                    <Legend wrapperStyle={{ color: '#00FF9F', fontWeight: 'bold' }} />
                     <Bar dataKey="total_interactions" fill="url(#colorInteractions)" name="Interacciones Totales" barSize={50} radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -143,41 +139,38 @@ const UserSessionStatsComponent: React.FC = () => {
                 sx={{
                   padding: 3,
                   borderRadius: 5,
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
-                  transition: '0.3s',
-                  '&:hover': {
-                    boxShadow: '0px 12px 40px rgba(0,0,0,0.2)',
-                  },
+                  backgroundColor: '#0A0F29',
+                  boxShadow: '0px 10px 30px rgba(143,0,255,0.2)',
+                  '&:hover': { boxShadow: '0px 12px 40px rgba(143,0,255,0.4)' },
                 }}
               >
-                <Typography variant="h5" gutterBottom sx={{ color: '#0d47a1', textAlign: 'center', fontWeight: 'bold' }}>
+                <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
                   Duración Promedio de Sesión por Usuario
                 </Typography>
                 <ResponsiveContainer width="100%" height={450}>
                   <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorAvgSession" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ff7043" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#ff7043" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#00E5FF" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#dce3ea" />
-                    <XAxis dataKey="user_id" tick={{ fill: '#616161' }} />
-                    <YAxis tick={{ fill: '#616161' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
+                    <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} />
+                    <YAxis tick={{ fill: '#B3B3B3' }} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#f0f4f8', borderColor: '#ff7043', borderRadius: 10 }}
-                      labelStyle={{ color: '#0d47a1' }}
-                      itemStyle={{ color: '#424242' }}
+                      contentStyle={{ backgroundColor: '#0A0F29', borderColor: '#00E5FF', borderRadius: 10 }}
+                      labelStyle={{ color: '#8F00FF' }}
+                      itemStyle={{ color: '#B3B3B3' }}
                     />
-                    <Legend wrapperStyle={{ color: '#0d47a1', fontWeight: 'bold' }} />
+                    <Legend wrapperStyle={{ color: '#8F00FF', fontWeight: 'bold' }} />
                     <Line
                       type="monotone"
                       dataKey="avg_session"
                       stroke="url(#colorAvgSession)"
                       strokeWidth={3}
                       name="Duración Promedio (s)"
-                      dot={{ r: 6, strokeWidth: 2, fill: '#ff7043' }}
+                      dot={{ r: 6, strokeWidth: 2, fill: '#00E5FF' }}
                     />
                   </LineChart>
                 </ResponsiveContainer>

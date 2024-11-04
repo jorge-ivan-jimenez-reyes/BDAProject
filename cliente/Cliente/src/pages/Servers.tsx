@@ -1,4 +1,3 @@
-// Servers.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import {
@@ -13,21 +12,21 @@ import {
   Line,
   Legend,
 } from 'recharts';
-import ProblemFractalChart from '../components/ProblemFractalChart'; // Import the ProblemFractalChart
+import ProblemFractalChart from '../components/ProblemFractalChart';
 
 interface PredictedIncident {
   prediction_id: number;
   incident_type: string;
-  likelihood: number; // Ensure this is a number between 0 and 1
+  likelihood: number;
   impact_estimate: string;
   predicted_time: string;
 }
 
 interface HistoricalData {
   record_id: number;
-  date: string; // Expecting a date string in a valid format
-  average_traffic_volume: number; // Ensure this is a number
-  uptime_percentage: number; // Ensure this is a number
+  date: string;
+  average_traffic_volume: number;
+  uptime_percentage: number;
 }
 
 const Servers: React.FC = () => {
@@ -48,9 +47,6 @@ const Servers: React.FC = () => {
         const predictedData: PredictedIncident[] = await predictedResponse.json();
         const historicalData: HistoricalData[] = await historicalResponse.json();
 
-        console.log('Predicted Data:', predictedData);
-        console.log('Historical Data:', historicalData);
-
         setPredictedIncidents(predictedData);
         setHistoricalData(historicalData);
       } catch (error) {
@@ -66,7 +62,7 @@ const Servers: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <CircularProgress />
+        <CircularProgress color="secondary" />
       </Box>
     );
   }
@@ -83,54 +79,53 @@ const Servers: React.FC = () => {
 
   const formattedHistoricalData = historicalData.map((record) => ({
     ...record,
-    date: new Date(record.date).toLocaleDateString(), // Ensure the date format is correct
+    date: new Date(record.date).toLocaleDateString(),
   }));
 
-  console.log('Formatted Predicted Incidents:', formattedPredictedIncidents);
-  console.log('Formatted Historical Data:', formattedHistoricalData);
-
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold', marginBottom: 3 }}>
+    <Box sx={{ padding: 4, backgroundColor: '#0A0F29' }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#00FF9F', fontWeight: 'bold', textAlign: 'center', mb: 4 }}>
         Servidores - Predicción y Análisis Histórico
       </Typography>
 
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
-          <Paper elevation={6} sx={{ padding: 3, borderRadius: 5, backgroundColor: '#ffffff' }}>
-            <Typography variant="h5" gutterBottom sx={{ color: '#0d47a1', textAlign: 'center', fontWeight: 'bold' }}>
+          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B' }}>
+            <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
               Predicción de Incidentes
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" dataKey="likelihood" name="Probabilidad" domain={[0, 1]} />
-                <YAxis type="number" dataKey="impact_value" name="Impacto" domain={[1, 3]} />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                <Scatter name="Incidentes" data={formattedPredictedIncidents} fill="#8884d8" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis type="number" dataKey="likelihood" name="Probabilidad" domain={[0, 1]} tick={{ fill: '#00E5FF' }} />
+                <YAxis type="number" dataKey="impact_value" name="Impacto" domain={[1, 3]} tick={{ fill: '#00E5FF' }} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#1B263B', borderColor: '#8F00FF' }} />
+                <Scatter name="Incidentes" data={formattedPredictedIncidents} fill="#FF007A" />
               </ScatterChart>
             </ResponsiveContainer>
           </Paper>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <ProblemFractalChart /> {/* Add your ProblemFractalChart component here */}
+          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B' }}>
+            <ProblemFractalChart />
+          </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Paper elevation={6} sx={{ padding: 3, borderRadius: 5, backgroundColor: '#ffffff' }}>
-            <Typography variant="h5" gutterBottom sx={{ color: '#0d47a1', textAlign: 'center', fontWeight: 'bold' }}>
+        <Grid item xs={12}>
+          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B' }}>
+            <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
               Análisis de Datos Históricos
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={formattedHistoricalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="average_traffic_volume" stroke="#8884d8" name="Tráfico Promedio" />
-                <Line type="monotone" dataKey="uptime_percentage" stroke="#82ca9d" name="Uptime (%)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="date" tick={{ fill: '#00E5FF' }} />
+                <YAxis tick={{ fill: '#00E5FF' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#1B263B', borderColor: '#8F00FF' }} />
+                <Legend wrapperStyle={{ color: '#00FF9F' }} />
+                <Line type="monotone" dataKey="average_traffic_volume" stroke="#00FF9F" name="Tráfico Promedio" />
+                <Line type="monotone" dataKey="uptime_percentage" stroke="#FF007A" name="Uptime (%)" />
               </LineChart>
             </ResponsiveContainer>
           </Paper>

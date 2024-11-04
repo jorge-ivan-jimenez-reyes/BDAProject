@@ -2,23 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for the heatmap colors */
+/* Custom styles for the heatmap colors using the cyber color palette */
 .color-empty {
-  fill: #e0e0e0; /* Sin datos */
+  fill: #0a0f29; /* Fondo principal oscuro - Sin datos */
 }
 
 .color-scale-1 {
-  fill: #d6e685; /* Bajo */
+  fill: #00ff9f; /* Acento neón verde - Baja */
 }
 
 .color-scale-2 {
-  fill: #8cc665; /* Medio */
+  fill: #00e5ff; /* Acento cian brillante - Media */
 }
 
 .color-scale-3 {
-  fill: #44a340; /* Alto */
+  fill: #8f00ff; /* Acento neón púrpura - Alta */
 }
 
 .color-scale-4 {
-  fill: #1e6823; /* Muy alto */
+  fill: #ff007a; /* Acento rosa neón - Muy alta */
+}
+
+.color-scale-5 {
+  fill: #c0c0c0; /* Borde metálico plateado - Extremadamente alta */
 }

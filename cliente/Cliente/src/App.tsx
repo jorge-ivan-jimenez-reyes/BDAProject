@@ -6,15 +6,15 @@ import Security from "./pages/Security";
 import Sidebar from "./components/Sidebar";
 import RealTimeMonitor from "./pages/RealTimeMonitoring";
 
-import 'mapbox-gl/dist/mapbox-gl.css'; // Asegúrate de tener los estilos de Mapbox GL importados
-import "./index.css"; // Asegúrate de tener Tailwind CSS configurado aquí.
+import 'mapbox-gl/dist/mapbox-gl.css';
+import "./index.css";
 
 function App() {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-cyber-dark text-light-gray">
       <Router>
         <Sidebar />
-        <div className="flex-grow bg-gray-100 p-6">
+        <div className="flex-grow p-6 bg-gradient-to-br from-cyber-dark to-dark-blue">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/network" element={<Network />} />
@@ -22,9 +22,6 @@ function App() {
             <Route path="/security" element={<Security />} />
             <Route path="/realTimeMonitoring" element={<RealTimeMonitor />} />
           </Routes>
-
-          {/* Componente del Mapa */}
-          
         </div>
       </Router>
     </div>

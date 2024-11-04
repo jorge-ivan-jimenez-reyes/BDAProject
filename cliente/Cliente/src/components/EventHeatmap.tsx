@@ -67,9 +67,9 @@ const EventHeatmap: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md max-w-5xl mx-auto">
+    <div className="p-6 bg-cyber-dark rounded-lg shadow-md max-w-5xl mx-auto">
       <BoxHeader title="📅 Mapa de Calor de Frecuencia de Eventos - Todo el Año" sideText="🕒 Último Año" />
-      <p className="text-sm text-gray-600 mt-2 text-center">
+      <p className="text-sm text-light-gray mt-2 text-center">
         Este gráfico muestra la frecuencia de eventos registrados a lo largo de un año. Cada recuadro representa un día del año, y el color indica la intensidad de la actividad:
       </p>
       <div className="flex justify-center overflow-x-auto mt-4">
@@ -80,7 +80,7 @@ const EventHeatmap: React.FC = () => {
           classForValue={(value) => {
             if (!value) return "color-empty";
             if (value.count === 0) return "color-empty";
-            if (value.count > 500) return "color-scale-5"; // Nueva clase para extremadamente alta
+            if (value.count > 500) return "color-scale-5"; // Extremadamente alta
             if (value.count > 100) return "color-scale-4"; // Muy alta
             if (value.count > 50) return "color-scale-3"; // Alta
             if (value.count > 20) return "color-scale-2"; // Media
@@ -98,25 +98,25 @@ const EventHeatmap: React.FC = () => {
       </div>
       <div className="mt-4 flex justify-center space-x-4 text-xs">
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-gray-200 inline-block mr-1"></span> Sin datos
+          <span className="w-3 h-3 bg-cyber-dark inline-block mr-1"></span> Sin datos
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-green-200 inline-block mr-1"></span> Baja
+          <span className="w-3 h-3 bg-neon-green inline-block mr-1"></span> Baja
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-green-400 inline-block mr-1"></span> Media
+          <span className="w-3 h-3 bg-bright-cyan inline-block mr-1"></span> Media
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-green-600 inline-block mr-1"></span> Alta
+          <span className="w-3 h-3 bg-neon-purple inline-block mr-1"></span> Alta
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-green-800 inline-block mr-1"></span> Muy alta
+          <span className="w-3 h-3 bg-neon-pink inline-block mr-1"></span> Muy alta
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 bg-green-900 inline-block mr-1"></span> Extremadamente alta
+          <span className="w-3 h-3 bg-metallic-silver inline-block mr-1"></span> Extremadamente alta
         </span>
       </div>
-      <div className="mt-2 text-xs text-gray-500 text-center">
+      <div className="mt-2 text-xs text-light-gray text-center">
         <p><strong>Nota:</strong> Este mapa de calor visualiza la frecuencia de eventos registrados a lo largo del último año.</p>
       </div>
       <ToastContainer />
