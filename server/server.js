@@ -100,7 +100,7 @@ app.get('/api/eventFrequency', async (req, res) => {
       FROM 
         event_logs 
       WHERE 
-        event_time >= NOW() - INTERVAL '30 days' 
+        event_time >= NOW() - INTERVAL '1 year' 
       GROUP BY 
         event_date 
       ORDER BY 
@@ -118,7 +118,7 @@ app.get('/api/eventFrequency', async (req, res) => {
 app.get('/api/securityIncidentAnalysis', async (req, res) => {
   try {
     const securityIncidentsResult = await pool.query("SELECT incident_type, severity, COUNT(*) AS count FROM security_incidents GROUP BY incident_type, severity");
-    const incidentResolutionLogsResult = await pool.query("SELECT resolution_status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY resolution_status");
+    const incidentResolutionLogsResult = await pool.query("SELECT status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY status");
     const anomalyDetectionLogsResult = await pool.query('SELECT * FROM anomaly_detection_logs ORDER BY detection_time DESC LIMIT 100');
 
     res.json({
