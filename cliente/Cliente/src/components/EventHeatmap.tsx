@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import BoxHeader from "../components/BoxHeader";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Interfaz para definir la estructura de los datos de eventos
 interface EventFrequencyData {
@@ -23,67 +25,101 @@ const EventHeatmap: React.FC = () => {
       try {
         const response = await fetch("http://localhost:5000/api/eventFrequency");
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`Error HTTP! Estado: ${response.status}`);
         }
 
         const data: EventFrequencyData[] = await response.json();
+        console.log("Datos obtenidos de la API:", data);
         const formattedData = data.map(item => ({
-          date: item.event_date.split('T')[0], // Obtener solo la parte de la fecha
-          count: Number(item.event_count), // Convertir count a número
+          date: item.event_date.split('T')[0],
+          count: Number(item.event_count),
         }));
+        console.log("Datos formateados:", formattedData);
         setHeatmapData(formattedData);
-        console.log("Formatted heatmap data:", formattedData);
       } catch (error) {
-        console.error("Error fetching event frequency data:", error);
+        console.error("Error al obtener los datos de frecuencia de eventos:", error);
       }
     };
 
     fetchData();
   }, []);
 
+  const handleClick = (value: { date: string; count: number } | undefined) => {
+    if (value && value.date) {
+      toast.info(
+        `🗓 Fecha: ${value.date}\n📊 Número de eventos: ${value.count}\n✨ Intensidad: ${
+          value.count > 500 ? 'Extremadamente alta' :
+          value.count > 100 ? 'Muy alta' :
+          value.count > 50 ? 'Alta' :
+          value.count > 20 ? 'Media' :
+          value.count > 0 ? 'Baja' : 'Ninguna'
+        }`,
+        {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
+    }
+  };
+
   return (
-    <div className="p-4 bg-gray-100 rounded-lg shadow-md max-w-lg mx-auto">
-      <BoxHeader title="Event Frequency Heatmap" sideText="Last 30 Days" />
+    <div className="p-6 bg-white rounded-lg shadow-md max-w-5xl mx-auto">
+      <BoxHeader title="📅 Mapa de Calor de Frecuencia de Eventos - Todo el Año" sideText="🕒 Último Año" />
+      <p className="text-sm text-gray-600 mt-2 text-center">
+        Este gráfico muestra la frecuencia de eventos registrados a lo largo de un año. Cada recuadro representa un día del año, y el color indica la intensidad de la actividad:
+      </p>
       <div className="flex justify-center overflow-x-auto mt-4">
         <CalendarHeatmap
-          startDate={new Date(new Date().setDate(new Date().getDate() - 30))}
-          endDate={new Date()}
+          startDate={new Date(new Date().getFullYear(), 0, 1)}
+          endDate={new Date(new Date().getFullYear(), 11, 31)}
           values={heatmapData.map(item => ({ date: item.date, count: item.count }))}
           classForValue={(value) => {
-            if (!value) return "color-empty"; // Sin datos
-            if (value.count === 0) return "color-empty"; // Sin eventos
-            if (value.count === 1) return "color-scale-1"; // Baja actividad
-            if (value.count === 2) return "color-scale-2"; // Actividad media
-            if (value.count === 3) return "color-scale-3"; // Alta actividad
-            return "color-scale-4"; // Muy alta actividad
+            if (!value) return "color-empty";
+            if (value.count === 0) return "color-empty";
+            if (value.count > 500) return "color-scale-5"; // Nueva clase para extremadamente alta
+            if (value.count > 100) return "color-scale-4"; // Muy alta
+            if (value.count > 50) return "color-scale-3"; // Alta
+            if (value.count > 20) return "color-scale-2"; // Media
+            return "color-scale-1"; // Baja
           }}
           tooltipDataAttrs={(value) => ({
-            'aria-label': value && value.date ? `Date: ${value.date}, Count: ${value.count}` : 'No data',
+            'aria-label': value && value.date
+              ? `Fecha: ${value.date}\nNúmero de eventos: ${value.count}`
+              : 'Sin datos',
           })}
+          onClick={handleClick}
           showWeekdayLabels={true}
           horizontal={true}
         />
       </div>
-      <div className="mt-4 flex justify-center space-x-2 text-xs">
+      <div className="mt-4 flex justify-center space-x-4 text-xs">
         <span className="flex items-center">
-          <span className="w-3 h-3 color-empty inline-block mr-1"></span> No data
+          <span className="w-3 h-3 bg-gray-200 inline-block mr-1"></span> Sin datos
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 color-scale-1 inline-block mr-1"></span> Low
+          <span className="w-3 h-3 bg-green-200 inline-block mr-1"></span> Baja
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 color-scale-2 inline-block mr-1"></span> Medium
+          <span className="w-3 h-3 bg-green-400 inline-block mr-1"></span> Media
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 color-scale-3 inline-block mr-1"></span> High
+          <span className="w-3 h-3 bg-green-600 inline-block mr-1"></span> Alta
         </span>
         <span className="flex items-center">
-          <span className="w-3 h-3 color-scale-4 inline-block mr-1"></span> Very High
+          <span className="w-3 h-3 bg-green-800 inline-block mr-1"></span> Muy alta
+        </span>
+        <span className="flex items-center">
+          <span className="w-3 h-3 bg-green-900 inline-block mr-1"></span> Extremadamente alta
         </span>
       </div>
       <div className="mt-2 text-xs text-gray-500 text-center">
-        <p><strong>Note:</strong> The heatmap represents event frequency from logs over the past 30 days.</p>
+        <p><strong>Nota:</strong> Este mapa de calor visualiza la frecuencia de eventos registrados a lo largo del último año.</p>
       </div>
+      <ToastContainer />
     </div>
   );
 };
