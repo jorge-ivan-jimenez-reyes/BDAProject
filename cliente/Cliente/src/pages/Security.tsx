@@ -88,7 +88,7 @@ const Security: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Security Incident Analysis</h1>
+     
       {data.securityIncidents.length > 0 && (
         <SecurityIncidentsChart data={data.securityIncidents} />
       )}

@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const WebSocket = require('ws');
+require('dotenv').config();
 
 // Crear instancia de express
 const app = express();
@@ -11,11 +12,11 @@ app.use(bodyParser.json());
 
 // Configurar la conexión a PostgreSQL
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'monitoring_db',
-  password: '12345',
-  port: 5432,
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_DATABASE || 'monitoring_db',
+  password: process.env.DB_PASSWORD || '12345',
+  port: process.env.DB_PORT || 5432,
 });
 
 // Configurar WebSocket Server
@@ -43,8 +44,19 @@ const sendDataToClient = async (ws) => {
     const serverMetricsResult = await pool.query('SELECT * FROM server_metrics ORDER BY timestamp DESC LIMIT 100');
     const uptimeMonitorResult = await pool.query('SELECT * FROM uptime_monitor ORDER BY check_time DESC LIMIT 1');
     const eventLogsResult = await pool.query("SELECT event_time, event_type, EXTRACT(HOUR FROM event_time) AS hour FROM event_logs ORDER BY event_time DESC LIMIT 100");
-    const securityIncidentsResult = await pool.query("SELECT incident_type, severity, COUNT(*) AS count FROM security_incidents GROUP BY incident_type, severity");
-    const incidentResolutionLogsResult = await pool.query("SELECT resolution_status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY resolution_status");
+    const securityIncidentsResult = await pool.query(`
+      SELECT 
+        l.latitude, 
+        l.longitude, 
+        s.incident_type, 
+        s.severity, 
+        COUNT(*) AS count 
+      FROM security_incidents s
+      JOIN ip_to_location l ON s.ip_address = l.ip_address
+      GROUP BY l.latitude, l.longitude, s.incident_type, s.severity
+      LIMIT 100;
+    `);
+    const incidentResolutionLogsResult = await pool.query("SELECT status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY status");
     const anomalyDetectionLogsResult = await pool.query('SELECT * FROM anomaly_detection_logs ORDER BY detection_time DESC LIMIT 100');
     const predictedIncidentsResult = await pool.query('SELECT incident_type, likelihood, impact_estimate FROM predicted_incidents ORDER BY predicted_time DESC LIMIT 100');
     const historicalDataResult = await pool.query('SELECT * FROM historical_data_archive ORDER BY timestamp DESC LIMIT 100');
@@ -91,6 +103,7 @@ app.get('/api/realTimeMonitoring', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los datos de Real-Time Monitoring' });
   }
 });
+
 app.get('/api/eventFrequency', async (req, res) => {
   try {
     const eventFrequencyResult = await pool.query(`
@@ -117,9 +130,36 @@ app.get('/api/eventFrequency', async (req, res) => {
 // Ruta para Security Incident Analysis
 app.get('/api/securityIncidentAnalysis', async (req, res) => {
   try {
-    const securityIncidentsResult = await pool.query("SELECT incident_type, severity, COUNT(*) AS count FROM security_incidents GROUP BY incident_type, severity");
-    const incidentResolutionLogsResult = await pool.query("SELECT status, COUNT(*) AS count FROM incident_resolution_logs GROUP BY status");
-    const anomalyDetectionLogsResult = await pool.query('SELECT * FROM anomaly_detection_logs ORDER BY detection_time DESC LIMIT 100');
+    const securityIncidentsResult = await pool.query(`
+      SELECT 
+        l.latitude, 
+        l.longitude, 
+        l.country, -- Agrega el campo country aquí
+        s.incident_type, 
+        s.severity, 
+        COUNT(*) AS count 
+      FROM security_incidents s
+      JOIN ip_to_location l ON s.ip_address = l.ip_address
+      GROUP BY l.latitude, l.longitude, l.country, s.incident_type, s.severity
+      LIMIT 100;
+    `);
+    
+    const incidentResolutionLogsResult = await pool.query(`
+      SELECT 
+        status, 
+        COUNT(*) AS count 
+      FROM 
+        incident_resolution_logs 
+      GROUP BY status
+    `);
+    
+    const anomalyDetectionLogsResult = await pool.query(`
+      SELECT * 
+      FROM 
+        anomaly_detection_logs 
+      ORDER BY detection_time DESC 
+      LIMIT 100
+    `);
 
     res.json({
       securityIncidents: securityIncidentsResult.rows,
@@ -132,11 +172,28 @@ app.get('/api/securityIncidentAnalysis', async (req, res) => {
   }
 });
 
+
 // Ruta para Predictive Analysis and Forecasts
 app.get('/api/predictiveAnalysis', async (req, res) => {
   try {
-    const predictedIncidentsResult = await pool.query('SELECT incident_type, likelihood, impact_estimate FROM predicted_incidents ORDER BY predicted_time DESC LIMIT 100');
-    const historicalDataResult = await pool.query('SELECT * FROM historical_data_archive ORDER BY timestamp DESC LIMIT 100');
+    const predictedIncidentsResult = await pool.query(`
+      SELECT 
+        incident_type, 
+        likelihood, 
+        impact_estimate 
+      FROM 
+        predicted_incidents 
+      ORDER BY predicted_time DESC 
+      LIMIT 100
+    `);
+    
+    const historicalDataResult = await pool.query(`
+      SELECT * 
+      FROM 
+        historical_data_archive 
+      ORDER BY timestamp DESC 
+      LIMIT 100
+    `);
 
     res.json({
       predictedIncidents: predictedIncidentsResult.rows,
@@ -151,7 +208,20 @@ app.get('/api/predictiveAnalysis', async (req, res) => {
 // Ruta para Geographical Visualization
 app.get('/api/geographicalVisualization', async (req, res) => {
   try {
-    const ipLocationResult = await pool.query('SELECT e.ip_address, l.country, l.latitude, l.longitude FROM event_logs e JOIN ip_to_location l ON e.ip_address = l.ip_address LIMIT 100');
+    const ipLocationResult = await pool.query(`
+      SELECT 
+        e.ip_address, 
+        l.country, 
+        l.latitude, 
+        l.longitude 
+      FROM 
+        event_logs e 
+      JOIN 
+        ip_to_location l 
+      ON 
+        e.ip_address = l.ip_address 
+      LIMIT 100
+    `);
 
     res.json({
       ipLocation: ipLocationResult.rows,
@@ -165,7 +235,14 @@ app.get('/api/geographicalVisualization', async (req, res) => {
 // Ruta para User Activity and Behavior Insights
 app.get('/api/userActivityInsights', async (req, res) => {
   try {
-    const userActivityResult = await pool.query('SELECT action_type, COUNT(*) AS count FROM user_activity GROUP BY action_type');
+    const userActivityResult = await pool.query(`
+      SELECT 
+        action_type, 
+        COUNT(*) AS count 
+      FROM 
+        user_activity 
+      GROUP BY action_type
+    `);
 
     res.json({
       userActivity: userActivityResult.rows,
@@ -179,8 +256,19 @@ app.get('/api/userActivityInsights', async (req, res) => {
 // Ruta para Threat Intelligence and Alerts
 app.get('/api/threatIntelligence', async (req, res) => {
   try {
-    const threatIntelligenceResult = await pool.query('SELECT threat_type, severity FROM threat_intelligence');
-    const alertConfigurationsResult = await pool.query('SELECT * FROM alert_configurations');
+    const threatIntelligenceResult = await pool.query(`
+      SELECT 
+        threat_type, 
+        severity 
+      FROM 
+        threat_intelligence
+    `);
+    
+    const alertConfigurationsResult = await pool.query(`
+      SELECT * 
+      FROM 
+        alert_configurations
+    `);
 
     res.json({
       threatIntelligence: threatIntelligenceResult.rows,
@@ -191,8 +279,6 @@ app.get('/api/threatIntelligence', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los datos de Threat Intelligence' });
   }
 });
-
-
 
 // Definir el puerto donde correrá el servidor HTTP
 const PORT = process.env.PORT || 5000;
