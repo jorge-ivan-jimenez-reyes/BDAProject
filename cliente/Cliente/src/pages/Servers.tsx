@@ -1,3 +1,4 @@
+// Servers.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import {
@@ -12,6 +13,7 @@ import {
   Line,
   Legend,
 } from 'recharts';
+import ProblemFractalChart from '../components/ProblemFractalChart'; // Import the ProblemFractalChart
 
 interface PredictedIncident {
   prediction_id: number;
@@ -109,6 +111,10 @@ const Servers: React.FC = () => {
               </ScatterChart>
             </ResponsiveContainer>
           </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <ProblemFractalChart /> {/* Add your ProblemFractalChart component here */}
         </Grid>
 
         <Grid item xs={12} md={6}>

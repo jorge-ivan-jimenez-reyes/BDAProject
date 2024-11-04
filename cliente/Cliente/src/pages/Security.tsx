@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SecurityIncidentsChart from '../components/SecurityIncidentsChart';
 import IncidentResolutionPieChart from '../components/IncidentResolutionPieChart';
 import AnomalyTimelineChart from '../components/AnomalyTimelineChart';
+import RadarChart from '../components/RadarChart'; // Importa el RadarChart
 
 interface SecurityIncident {
   incident_type: string;
@@ -20,7 +21,7 @@ interface AnomalyDetectionLog {
   anomaly_type: string;
   description: string;
   related_metric: string;
-  severity: number; // Ensure severity is numeric for chart compatibility
+  severity: number; // Asegúrate de que la severidad sea numérica para la compatibilidad del gráfico
   resolved: boolean;
 }
 
@@ -63,7 +64,7 @@ const Security: React.FC = () => {
         }
         const result: APIResponse = await response.json();
 
-        // Convert string counts to numbers
+        // Convertir conteos de incidentes a números
         const securityIncidents = result.securityIncidents.map((incident) => ({
           ...incident,
           count: parseInt(incident.count.toString(), 10),
@@ -102,6 +103,10 @@ const Security: React.FC = () => {
       )}
       {data.anomalyDetectionLogs.length > 0 && (
         <AnomalyTimelineChart data={data.anomalyDetectionLogs} />
+      )}
+      {/* Agregar el RadarChart aquí */}
+      {data.securityIncidents.length > 0 && (
+        <RadarChart />
       )}
     </div>
   );
