@@ -50,10 +50,10 @@ const UserBehaviorDemographicsChart: React.FC = () => {
       {
         label: 'Cantidad de Actividades',
         data: userActivity.map((item) => item.activity_count),
-        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-        borderColor: 'rgba(16, 185, 129, 1)',
+        backgroundColor: 'rgba(0, 229, 255, 0.7)',
+        borderColor: 'rgba(0, 229, 255, 1)',
         borderWidth: 1,
-        hoverBackgroundColor: 'rgba(16, 185, 129, 0.9)',
+        hoverBackgroundColor: 'rgba(0, 229, 255, 0.9)',
       },
     ],
   };
@@ -79,27 +79,27 @@ const UserBehaviorDemographicsChart: React.FC = () => {
       title: {
         display: true,
         text: 'Actividad de Usuario por Hora',
-        color: '#38bdf8',
+        color: '#00FF9F', // neon-green
         font: { size: 20 },
       },
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#e2e8f0',
+          color: '#C0C0C0', // metallic-silver
           font: { size: 16 },
         },
       },
     },
     scales: {
       x: {
-        title: { display: true, text: 'Hora del Día', color: '#e2e8f0' },
-        ticks: { color: '#e2e8f0' },
-        grid: { color: '#4b5563' },
+        title: { display: true, text: 'Hora del Día', color: '#C0C0C0' },
+        ticks: { color: '#C0C0C0' },
+        grid: { color: '#1B263B' }, // dark-blue
       },
       y: {
-        title: { display: true, text: 'Número de Actividades', color: '#e2e8f0' },
-        ticks: { color: '#e2e8f0' },
-        grid: { color: '#4b5563' },
+        title: { display: true, text: 'Número de Actividades', color: '#C0C0C0' },
+        ticks: { color: '#C0C0C0' },
+        grid: { color: '#1B263B' },
       },
     },
   };
@@ -111,13 +111,13 @@ const UserBehaviorDemographicsChart: React.FC = () => {
       title: {
         display: true,
         text: 'Distribución Demográfica',
-        color: '#38bdf8',
+        color: '#FF007A', // neon-pink
         font: { size: 20 },
       },
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#e2e8f0',
+          color: '#C0C0C0',
           font: { size: 16 },
         },
       },
@@ -125,14 +125,14 @@ const UserBehaviorDemographicsChart: React.FC = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold text-center mb-6 text-cyan-400">
+    <div className="p-8 bg-cyber-dark rounded-lg shadow-md">
+      <h2 className="text-3xl font-bold text-center mb-6 text-bright-cyan">
         Análisis de Comportamiento y Demografía de Usuarios
       </h2>
 
       {/* Gráfico de barras para actividad por hora */}
       <div className="my-8">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200">Actividad de Usuario por Hora</h3>
+        <h3 className="text-xl font-semibold mb-4 text-light-gray">Actividad de Usuario por Hora</h3>
         <div style={{ height: '500px' }}>
           <Bar data={activityData} options={activityOptions} />
         </div>
@@ -140,7 +140,7 @@ const UserBehaviorDemographicsChart: React.FC = () => {
 
       {/* Gráfico de pie para distribución demográfica */}
       <div className="my-8">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200">Distribución Demográfica</h3>
+        <h3 className="text-xl font-semibold mb-4 text-light-gray">Distribución Demográfica</h3>
         <div style={{ height: '500px' }}>
           <Pie data={demographicsData} options={demographicsOptions} />
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Table, TableHead, TableRow, TableCell, TableBody, Paper, Grid, CircularProgress } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, LineChart, Line } from 'recharts';
+import { CircularProgress } from '@mui/material';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, LineChart, Line, LabelList } from 'recharts';
 
 interface UserSessionStats {
   user_id: number;
@@ -35,12 +35,13 @@ const UserSessionStatsComponent: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <div className="flex justify-center items-center h-full">
         <CircularProgress />
-      </Box>
+      </div>
     );
   }
 
+  // Prepare data for charts
   const barChartData = sessionStats.map((stat) => ({
     user_id: `User ${stat.user_id}`,
     total_interactions: stat.total_interactions,
@@ -52,134 +53,113 @@ const UserSessionStatsComponent: React.FC = () => {
   }));
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold', marginBottom: 3 }}>
-        Estadísticas de Sesiones de Usuario
-      </Typography>
+    <div className="p-6 bg-cyber-dark min-h-screen text-light-gray">
+      <h1 className="text-5xl text-neon-green font-bold text-center mb-10">Estadísticas de Sesiones de Usuario</h1>
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={3}>
-          <Paper elevation={6} sx={{ padding: 1, borderRadius: 3, backgroundColor: '#1B263B', color: '#B3B3B3', height: '100%' }}>
-            <Typography variant="h6" sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold', marginBottom: 1 }}>
-              Resumen de Sesiones
-            </Typography>
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#0A0F29' }}>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Interacciones</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Máx (s)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Mín (s)</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: '#00E5FF', padding: '4px' }}>Dur. Prom (s)</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sessionStats.map((stat) => (
-                  <TableRow key={stat.user_id} hover>
-                    <TableCell sx={{ padding: '4px' }}>{stat.user_id}</TableCell>
-                    <TableCell sx={{ padding: '4px' }}>{stat.total_interactions}</TableCell>
-                    <TableCell sx={{ padding: '4px' }}>
-                      {typeof stat.max_session_duration === 'number' ? stat.max_session_duration.toFixed(2) : 'N/A'}
-                    </TableCell>
-                    <TableCell sx={{ padding: '4px' }}>
-                      {typeof stat.min_session_duration === 'number' ? stat.min_session_duration.toFixed(2) : 'N/A'}
-                    </TableCell>
-                    <TableCell sx={{ padding: '4px' }}>
-                      {typeof stat.avg_session_duration === 'number' ? stat.avg_session_duration.toFixed(2) : 'N/A'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
-        </Grid>
+      <p className="text-light-gray text-center mb-12 text-lg">
+        Este análisis detalla la actividad de los usuarios, mostrando la frecuencia de interacciones y la duración promedio de sesiones para cada usuario. Estos gráficos y tablas ayudan a comprender el nivel de actividad y el compromiso de los usuarios.
+      </p>
 
-        <Grid item xs={12} md={9}>
-          <Grid container spacing={4}>
-            <Grid item xs={12}>
-              <Paper
-                elevation={6}
-                sx={{
-                  padding: 3,
-                  borderRadius: 5,
-                  backgroundColor: '#0A0F29',
-                  boxShadow: '0px 10px 30px rgba(0,255,159,0.2)',
-                  '&:hover': { boxShadow: '0px 12px 40px rgba(0,255,159,0.4)' },
-                }}
-              >
-                <Typography variant="h5" gutterBottom sx={{ color: '#00FF9F', textAlign: 'center', fontWeight: 'bold' }}>
-                  Total de Interacciones por Usuario
-                </Typography>
-                <ResponsiveContainer width="100%" height={450}>
-                  <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorInteractions" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8F00FF" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#8F00FF" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
-                    <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} />
-                    <YAxis tick={{ fill: '#B3B3B3' }} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0A0F29', borderColor: '#00FF9F', borderRadius: 10 }}
-                      labelStyle={{ color: '#00FF9F' }}
-                      itemStyle={{ color: '#B3B3B3' }}
-                    />
-                    <Legend wrapperStyle={{ color: '#00FF9F', fontWeight: 'bold' }} />
-                    <Bar dataKey="total_interactions" fill="url(#colorInteractions)" name="Interacciones Totales" barSize={50} radius={[10, 10, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Tabla de Sesiones */}
+        <div className="col-span-1 md:col-span-2 bg-dark-blue text-light-gray p-6 rounded-lg shadow-md">
+          <h2 className="text-3xl text-neon-purple text-center font-semibold mb-4">Resumen de Sesiones</h2>
+          <p className="text-md text-center mb-6">
+            Esta tabla muestra información clave para cada usuario, como el total de interacciones realizadas y las duraciones de sus sesiones en segundos. La "Dur. Máx" indica la sesión más larga registrada, mientras que la "Dur. Mín" muestra la más corta. La "Dur. Prom" es el promedio de todas las sesiones para el usuario.
+          </p>
+          <table className="w-full text-left text-lg">
+            <thead className="bg-cyber-dark text-neon-green">
+              <tr>
+                <th className="p-4">ID</th>
+                <th className="p-4">Interacciones</th>
+                <th className="p-4">Dur. Máx (s)</th>
+                <th className="p-4">Dur. Mín (s)</th>
+                <th className="p-4">Dur. Prom (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessionStats.map((stat) => (
+                <tr key={stat.user_id} className="hover:bg-light-gray hover:bg-opacity-10">
+                  <td className="p-4">{stat.user_id}</td>
+                  <td className="p-4">{stat.total_interactions}</td>
+                  <td className="p-4">
+                    {typeof stat.max_session_duration === 'number'
+                      ? stat.max_session_duration.toFixed(2)
+                      : 'N/A'}
+                  </td>
+                  <td className="p-4">
+                    {typeof stat.min_session_duration === 'number'
+                      ? stat.min_session_duration.toFixed(2)
+                      : 'N/A'}
+                  </td>
+                  <td className="p-4">
+                    {typeof stat.avg_session_duration === 'number'
+                      ? stat.avg_session_duration.toFixed(2)
+                      : 'N/A'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-            <Grid item xs={12}>
-              <Paper
-                elevation={6}
-                sx={{
-                  padding: 3,
-                  borderRadius: 5,
-                  backgroundColor: '#0A0F29',
-                  boxShadow: '0px 10px 30px rgba(143,0,255,0.2)',
-                  '&:hover': { boxShadow: '0px 12px 40px rgba(143,0,255,0.4)' },
-                }}
-              >
-                <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
-                  Duración Promedio de Sesión por Usuario
-                </Typography>
-                <ResponsiveContainer width="100%" height={450}>
-                  <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorAvgSession" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#00E5FF" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
-                    <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} />
-                    <YAxis tick={{ fill: '#B3B3B3' }} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#0A0F29', borderColor: '#00E5FF', borderRadius: 10 }}
-                      labelStyle={{ color: '#8F00FF' }}
-                      itemStyle={{ color: '#B3B3B3' }}
-                    />
-                    <Legend wrapperStyle={{ color: '#8F00FF', fontWeight: 'bold' }} />
-                    <Line
-                      type="monotone"
-                      dataKey="avg_session"
-                      stroke="url(#colorAvgSession)"
-                      strokeWidth={3}
-                      name="Duración Promedio (s)"
-                      dot={{ r: 6, strokeWidth: 2, fill: '#00E5FF' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Box>
+        {/* Gráficos */}
+        <div className="col-span-1 md:col-span-2 grid grid-cols-1 gap-6">
+          {/* Gráfico de Barras */}
+          <div className="bg-dark-blue p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 className="text-3xl text-neon-purple text-center font-bold mb-6">Total de Interacciones por Usuario</h2>
+            <p className="text-light-gray text-center mb-4">
+              Este gráfico de barras muestra la cantidad total de interacciones realizadas por cada usuario. Es útil para identificar los usuarios más activos en términos de interacciones.
+            </p>
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#B3B3B3" />
+                <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} label={{ value: "Usuarios", position: "insideBottom", offset: -10, fill: "#B3B3B3" }} />
+                <YAxis tick={{ fill: '#B3B3B3' }} label={{ value: "Interacciones Totales", angle: -90, position: "insideLeft", fill: "#B3B3B3" }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1B263B', borderColor: '#8F00FF', borderRadius: 10 }}
+                  labelStyle={{ color: '#8F00FF' }}
+                  itemStyle={{ color: '#C0C0C0' }}
+                />
+                <Legend wrapperStyle={{ color: '#8F00FF', fontWeight: 'bold' }} />
+                <Bar dataKey="total_interactions" fill="#8F00FF" name="Interacciones Totales" barSize={50} radius={[10, 10, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Gráfico de Línea */}
+          <div className="bg-dark-blue p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 className="text-3xl text-bright-cyan text-center font-bold mb-6">Duración Promedio de Sesión por Usuario</h2>
+            <p className="text-light-gray text-center mb-4">
+              Este gráfico de líneas muestra la duración promedio de sesión en segundos para cada usuario, permitiendo analizar la intensidad de su compromiso en cada sesión. Los puntos en la línea indican la duración promedio para cada usuario específico.
+            </p>
+            <ResponsiveContainer width="100%" height={600}>
+              <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#B3B3B3" />
+                <XAxis dataKey="user_id" tick={{ fill: '#B3B3B3' }} label={{ value: "Usuarios", position: "insideBottom", offset: -10, fill: "#B3B3B3" }} />
+                <YAxis tick={{ fill: '#B3B3B3' }} label={{ value: "Duración Prom (s)", angle: -90, position: "insideLeft", fill: "#B3B3B3" }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1B263B', borderColor: '#00E5FF', borderRadius: 10 }}
+                  labelStyle={{ color: '#00E5FF' }}
+                  itemStyle={{ color: '#C0C0C0' }}
+                />
+                <Legend wrapperStyle={{ color: '#00E5FF', fontWeight: 'bold' }} />
+                <Line
+                  type="monotone"
+                  dataKey="avg_session"
+                  stroke="#00E5FF"
+                  strokeWidth={3}
+                  name="Duración Promedio (s)"
+                  dot={{ r: 6, strokeWidth: 2, fill: '#00E5FF' }}
+                >
+                  <LabelList dataKey="avg_session" position="top" style={{ fill: '#00E5FF', fontSize: 12 }} />
+                </Line>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
