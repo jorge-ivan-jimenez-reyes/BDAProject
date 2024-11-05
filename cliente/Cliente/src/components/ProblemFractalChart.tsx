@@ -16,18 +16,18 @@ ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, 
 const ProblemFractalChart: React.FC = () => {
   const data = {
     labels: [
-      'Fallo en el Router',
-      'Problemas de Cableado',
-      'Error en la Aplicación',
-      'Problemas de Configuración',
-      'Congestión de Red',
-      'Interrupciones',
-      'Conexiones Lentas',
+      'Errores de Capa Física',
+      'Errores de Capa de Enlace de Datos',
+      'Errores de Capa de Red',
+      'Problemas de Capa de Transporte',
+      'Errores de Capa de Sesión',
+      'Problemas de Capa de Presentación',
+      'Errores de Capa de Aplicación',
     ],
     datasets: [
       {
         label: 'Hardware',
-        data: [700, 400, 300, 500, 450, 700, 600],
+        data: [800, 500, 200, 300, 450, 400, 700],
         fill: true,
         backgroundColor: 'rgba(0, 255, 159, 0.2)', // neon-green with transparency
         borderColor: '#00FF9F', // neon-green
@@ -38,7 +38,7 @@ const ProblemFractalChart: React.FC = () => {
       },
       {
         label: 'Software',
-        data: [500, 250, 450, 300, 400, 500, 550],
+        data: [300, 250, 450, 600, 200, 350, 500],
         fill: true,
         backgroundColor: 'rgba(143, 0, 255, 0.2)', // neon-purple with transparency
         borderColor: '#8F00FF', // neon-purple
@@ -49,7 +49,7 @@ const ProblemFractalChart: React.FC = () => {
       },
       {
         label: 'Red',
-        data: [300, 500, 200, 400, 300, 400, 500],
+        data: [100, 700, 400, 500, 300, 250, 300],
         fill: true,
         backgroundColor: 'rgba(0, 229, 255, 0.2)', // bright-cyan with transparency
         borderColor: '#00E5FF', // bright-cyan
@@ -108,7 +108,7 @@ const ProblemFractalChart: React.FC = () => {
 
   return (
     <div className="p-8 bg-cyber-dark shadow-lg rounded-lg w-full max-w-4xl mx-auto"> {/* Increased max-width */}
-      <h2 className="text-4xl font-bold text-center mb-6 text-light-gray">Análisis de Problemas en Telecomunicaciones</h2>
+      <h2 className="text-4xl font-bold text-center mb-6 text-light-gray">Análisis de Problemas en Capas de Red</h2>
       <div className="relative" style={{ height: '700px' }}> {/* Increased height */}
         <Radar data={data} options={options} />
       </div>
