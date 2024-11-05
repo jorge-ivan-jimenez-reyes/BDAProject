@@ -19,8 +19,9 @@ const Dashboard: React.FC = () => {
       }}
     >
       <Typography variant="h3" sx={{ color: '#00FF9F', fontWeight: 'bold', textAlign: 'center', mb: 5 }}>
-        Dashboard de Monitoreo de Usuarios
-      </Typography>
+      Dashboard de Análisis y Monitoreo Simulado de Actividad de Usuarios en UP.edu.mx
+
+</Typography>
 
       <Grid container spacing={4}>
         {/* EventFrequencyChart - Análisis de Frecuencia de Eventos */}

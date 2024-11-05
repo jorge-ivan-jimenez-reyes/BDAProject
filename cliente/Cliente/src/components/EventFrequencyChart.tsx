@@ -1,3 +1,4 @@
+// EventFrequencyChart.tsx
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -79,29 +80,36 @@ const EventFrequencyChart: React.FC = () => {
         label: 'Frecuencia de Eventos',
         data: counts,
         borderColor: 'rgba(75, 192, 192, 1)',
-        fill: false,
+        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        fill: true,
         tension: 0.2,
       },
       {
-        label: 'Media Móvil',
+        label: 'Media Móvil (7 días)',
         data: movingAvg,
         borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.1)',
         fill: false,
         borderDash: [5, 5],
+        pointStyle: 'rect',
         tension: 0.2,
       },
       {
         label: 'Banda Superior',
         data: upperBand,
         borderColor: 'rgba(255, 206, 86, 0.5)',
+        backgroundColor: 'rgba(255, 206, 86, 0.1)',
         fill: '-1',
+        borderDash: [2, 2],
         tension: 0.2,
       },
       {
         label: 'Banda Inferior',
         data: lowerBand,
         borderColor: 'rgba(255, 206, 86, 0.5)',
+        backgroundColor: 'rgba(255, 206, 86, 0.1)',
         fill: '-1',
+        borderDash: [2, 2],
         tension: 0.2,
       },
     ],
@@ -115,11 +123,22 @@ const EventFrequencyChart: React.FC = () => {
         display: true,
         text: 'Frecuencia de Eventos con Media Móvil y Desviación Estándar',
         color: '#00FF9F',
+        font: { size: 18, weight: 'bold' },
       },
       legend: {
         position: 'top' as const,
         labels: {
           color: '#e2e8f0',
+          usePointStyle: true,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const label = context.dataset.label || '';
+            const value = context.raw || 0;
+            return `${label}: ${value.toFixed(2)}`;
+          },
         },
       },
     },
@@ -129,12 +148,20 @@ const EventFrequencyChart: React.FC = () => {
           display: true,
           text: 'Fecha',
           color: '#e2e8f0',
+          font: { size: 14 },
+        },
+        ticks: {
+          color: '#e2e8f0',
         },
       },
       y: {
         title: {
           display: true,
           text: 'Cantidad de Eventos',
+          color: '#e2e8f0',
+          font: { size: 14 },
+        },
+        ticks: {
           color: '#e2e8f0',
         },
       },
@@ -144,8 +171,25 @@ const EventFrequencyChart: React.FC = () => {
   return (
     <div style={{ padding: '1rem', backgroundColor: '#0A0F29', borderRadius: '8px', boxShadow: '0px 4px 12px rgba(0,0,0,0.2)', width: '100%' }}>
       <h2 style={{ color: '#00FF9F', textAlign: 'center', marginBottom: '1rem' }}>Análisis de Frecuencia de Eventos</h2>
-      <div style={{ width: '100%', height: '600px' }}>
+      <div style={{ width: '100%', height: '500px' }}>
         <Line data={data} options={options} />
+      </div>
+
+      {/* Explicación de la Gráfica */}
+      <div style={{ marginTop: '2rem', color: '#e2e8f0', fontSize: '0.9rem' }}>
+        <h3>Descripción de la Gráfica</h3>
+        <ul>
+          <li><strong>Frecuencia de Eventos (Línea Azul):</strong> Representa la cantidad de eventos ocurridos en cada fecha específica.</li>
+          <li><strong>Media Móvil (Línea Roja con Puntos):</strong> Calcula el promedio de eventos en una ventana móvil de 7 días, suavizando fluctuaciones y mostrando la tendencia general.</li>
+          <li><strong>Bandas de Desviación Estándar (Amarillo):</strong> Muestran una desviación estándar por encima y por debajo de la media móvil, ayudando a identificar periodos de actividad inusualmente alta o baja.</li>
+        </ul>
+
+        <h3>Interpretación</h3>
+        <ul>
+          <li><strong>Observación de Picos:</strong> La media móvil (línea roja) destaca picos y caídas en la frecuencia de eventos. Cuando la frecuencia de eventos supera la banda superior, se observa un periodo de actividad anormalmente alta; si cae por debajo de la banda inferior, indica actividad anormalmente baja.</li>
+          <li><strong>Variaciones y Cambios en la Tendencia:</strong> La línea de media móvil permite visualizar tendencias, como aumentos o disminuciones sostenidas, proporcionando una vista clara de los cambios en la frecuencia de eventos.</li>
+          <li><strong>Soporte en la Toma de Decisiones:</strong> Al analizar los patrones de la media móvil y las bandas de desviación estándar, se pueden predecir periodos futuros de alta o baja actividad, lo cual es útil para ajustar estrategias o recursos de acuerdo con la variabilidad observada.</li>
+        </ul>
       </div>
     </div>
   );

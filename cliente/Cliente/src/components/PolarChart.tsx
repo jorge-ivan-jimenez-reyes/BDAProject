@@ -86,7 +86,6 @@ const PolarChart: React.FC = () => {
   return (
     <div className="p-12 bg-gray-800 rounded-lg shadow-lg flex justify-center items-center" style={{ height: '800px' }}>
       <h2 className="absolute text-center text-4xl font-bold mb-4 text-cyan-400 top-10">
-        Análisis de Incidentes de Seguridad
       </h2>
       <div style={{ height: '700px', width: '700px' }}>
         <PolarArea data={chartData} options={options} />
