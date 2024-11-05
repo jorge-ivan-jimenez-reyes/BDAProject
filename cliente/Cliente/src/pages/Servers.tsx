@@ -1,26 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import {
-  ScatterChart,
-  Scatter,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  LineChart,
-  Line,
   Legend,
 } from 'recharts';
 import ProblemFractalChart from '../components/ProblemFractalChart';
-
-interface PredictedIncident {
-  prediction_id: number;
-  incident_type: string;
-  likelihood: number;
-  impact_estimate: string;
-  predicted_time: string;
-}
+import IncidentBubbleChart from '../components/IncidentBubbleChart';
 
 interface HistoricalData {
   record_id: number;
@@ -29,26 +20,37 @@ interface HistoricalData {
   uptime_percentage: number;
 }
 
+interface IncidentData {
+  likelihood: number;
+  impact: number;
+  incident_type: string;
+}
+
 const Servers: React.FC = () => {
-  const [predictedIncidents, setPredictedIncidents] = useState<PredictedIncident[]>([]);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  const [incidentData, setIncidentData] = useState<IncidentData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const predictedResponse = await fetch('http://localhost:5000/api/predictedIncidents');
         const historicalResponse = await fetch('http://localhost:5000/api/historicalData');
+        const incidentsResponse = await fetch('http://localhost:5000/api/predictedIncidents');
 
-        if (!predictedResponse.ok || !historicalResponse.ok) {
+        if (!historicalResponse.ok || !incidentsResponse.ok) {
           throw new Error('Error fetching data');
         }
 
-        const predictedData: PredictedIncident[] = await predictedResponse.json();
         const historicalData: HistoricalData[] = await historicalResponse.json();
+        const incidentData: IncidentData[] = await incidentsResponse.json();
 
-        setPredictedIncidents(predictedData);
         setHistoricalData(historicalData);
+        setIncidentData(
+          incidentData.map((incident) => ({
+            ...incident,
+            impact: incident.impact_estimate === 'Low' ? 1 : incident.impact_estimate === 'Medium' ? 2 : 3,
+          }))
+        );
       } catch (error) {
         console.error('Error fetching server data:', error);
       } finally {
@@ -61,21 +63,11 @@ const Servers: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress color="secondary" />
       </Box>
     );
   }
-
-  const formattedPredictedIncidents = predictedIncidents.map((incident) => ({
-    ...incident,
-    impact_value:
-      incident.impact_estimate.toLowerCase() === 'low'
-        ? 1
-        : incident.impact_estimate.toLowerCase() === 'medium'
-        ? 2
-        : 3,
-  }));
 
   const formattedHistoricalData = historicalData.map((record) => ({
     ...record,
@@ -83,31 +75,23 @@ const Servers: React.FC = () => {
   }));
 
   return (
-    <Box sx={{ padding: 4, backgroundColor: '#0A0F29' }}>
+    <Box sx={{ padding: 4, backgroundColor: '#0A0F29', minHeight: '100vh' }}>
       <Typography variant="h4" gutterBottom sx={{ color: '#00FF9F', fontWeight: 'bold', textAlign: 'center', mb: 4 }}>
-        Servidores - Predicción y Análisis Histórico
+        Servidores - Análisis de Incidentes y Datos Históricos
       </Typography>
 
       <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B' }}>
+        <Grid item xs={12} lg={6}>
+          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B', height: '100%' }}>
             <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
-              Predicción de Incidentes
+              Predicción de Incidentes - Gráfico de Burbujas
             </Typography>
-            <ResponsiveContainer width="100%" height={400}>
-              <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis type="number" dataKey="likelihood" name="Probabilidad" domain={[0, 1]} tick={{ fill: '#00E5FF' }} />
-                <YAxis type="number" dataKey="impact_value" name="Impacto" domain={[1, 3]} tick={{ fill: '#00E5FF' }} />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#1B263B', borderColor: '#8F00FF' }} />
-                <Scatter name="Incidentes" data={formattedPredictedIncidents} fill="#FF007A" />
-              </ScatterChart>
-            </ResponsiveContainer>
+            <IncidentBubbleChart data={incidentData} />
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B' }}>
+        <Grid item xs={12} lg={6}>
+          <Paper elevation={6} sx={{ padding: 3, borderRadius: 4, backgroundColor: '#1B263B', height: '100%' }}>
             <ProblemFractalChart />
           </Paper>
         </Grid>
@@ -117,7 +101,7 @@ const Servers: React.FC = () => {
             <Typography variant="h5" gutterBottom sx={{ color: '#8F00FF', textAlign: 'center', fontWeight: 'bold' }}>
               Análisis de Datos Históricos
             </Typography>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={500}>
               <LineChart data={formattedHistoricalData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="date" tick={{ fill: '#00E5FF' }} />

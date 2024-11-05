@@ -100,16 +100,20 @@ const ProblemFractalChart: React.FC = () => {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => `${context.dataset.label}: ${context.raw}`,
+          label: (context: any) => `${context.dataset.label} (Capa ${context.label}): ${context.raw} problemas`,
         },
       },
     },
   };
 
   return (
-    <div className="p-8 bg-cyber-dark shadow-lg rounded-lg w-full max-w-4xl mx-auto"> {/* Increased max-width */}
+    <div className="p-8 bg-cyber-dark shadow-lg rounded-lg w-full max-w-4xl mx-auto">
       <h2 className="text-4xl font-bold text-center mb-6 text-light-gray">Análisis de Problemas en Capas de Red</h2>
-      <div className="relative" style={{ height: '700px' }}> {/* Increased height */}
+      <p className="text-light-gray text-center mb-8 max-w-3xl mx-auto">
+        Este gráfico radar ilustra la distribución de problemas en las diferentes capas del modelo OSI, categorizados en hardware, software y red. Los valores altos en una capa particular
+        indican una mayor cantidad de problemas en esa área. Utiliza esta información para identificar qué capas y qué aspectos (hardware, software, red) requieren más atención.
+      </p>
+      <div className="relative" style={{ height: '800px' }}>
         <Radar data={data} options={options} />
       </div>
     </div>

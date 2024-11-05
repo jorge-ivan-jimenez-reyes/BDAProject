@@ -94,13 +94,7 @@ const PolarChart: React.FC = () => {
         <p className="mb-4">
           Este gráfico polar representa la <span className="text-neon-green font-semibold">distribución de incidentes de seguridad</span> en diferentes categorías. Cada "sector" del gráfico corresponde a un tipo de incidente (como accesos no autorizados, ataques de red, etc.) y muestra el conteo de incidentes registrados para cada tipo.
         </p>
-        <ul className="mb-4">
-          <li><span className="text-bright-cyan font-semibold">Bright-cyan</span>: Primer tipo de incidente.</li>
-          <li><span className="text-neon-pink font-semibold">Neon-pink</span>: Segundo tipo de incidente.</li>
-          <li><span className="text-neon-purple font-semibold">Neon-purple</span>: Tercer tipo de incidente.</li>
-          <li><span className="text-neon-green font-semibold">Neon-green</span>: Cuarto tipo de incidente.</li>
-          <li><span className="text-dark-blue font-semibold">Dark-blue</span>: Quinto tipo de incidente.</li>
-        </ul>
+      
         <p>
           El tamaño de cada sector es proporcional a la frecuencia de cada tipo de incidente, permitiendo identificar rápidamente cuáles son los incidentes más comunes.
         </p>
