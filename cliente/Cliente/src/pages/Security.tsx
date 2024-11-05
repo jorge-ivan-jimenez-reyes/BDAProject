@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SecurityIncidentsChart from '../components/SecurityIncidentsChart';
 import IncidentResolutionPieChart from '../components/IncidentResolutionPieChart';
 import AnomalyTimelineChart from '../components/AnomalyTimelineChart';
-import RadarChart from '../components/RadarChart';
+import ThreatIntelligenceCorrelation from '../components/ThreatIntelligenceCorrelation';
 
 interface SecurityIncident {
   incident_type: string;
@@ -118,7 +118,7 @@ const Security: React.FC = () => {
       )}
 
       <div className="p-4 bg-dark-blue shadow-[0_0_20px_rgba(0,255,159,0.5)] rounded-lg">
-        <RadarChart />
+        <ThreatIntelligenceCorrelation />
       </div>
     </div>
   );
